@@ -1,27 +1,28 @@
+import java.util.Arrays;
 import java.util.Random;
 
 /**
  * Created by Lada on 15.11.14.
  */
 public class Generation {
-    Chromozom[] chromozoms;
+    Parent[] parents;
     int lengthGen;
     int lengthChrom;
     public Generation(){}
 
     public Generation(int lengthGen, int lengthChrom, boolean InitialState ) {
-        chromozoms = new Chromozom[lengthGen];
+        parents = new Parent[lengthGen];
         this.lengthGen = lengthGen;
         this.lengthChrom = lengthChrom;
         for (int i=0;i<lengthGen;i++){
-            chromozoms[i] = new Chromozom(lengthChrom, InitialState);
+            parents[i] = new Parent(lengthChrom, InitialState);
         }
     }
 
-    public double[] GetFittnesFunctionForAllChromozoms(boolean normalize){
+    public double[] GetFittnesFunctionForAllParents(boolean normalize){
         double results[] = new double[lengthGen];
         for (int i=0;i<lengthGen;i++){
-            results[i] = this.chromozoms[i].fitnesFunction();
+            results[i] = this.parents[i].fitnesFunction();
         }
         if (normalize)
         results = Normalize(results);
@@ -46,13 +47,14 @@ public class Generation {
 
     public Generation Reproduction(){
         Generation g = new Generation(lengthGen,lengthChrom, true);
+        double[] df = GetFittnesFunctionForAllParents(true);
         Random rnd = new Random();
-        double[] df = GetFittnesFunctionForAllChromozoms(true);
         for (int i=0;i<lengthGen;i++){
             double rand = rnd.nextDouble();
             for (int j=0;j<lengthGen;j++){
                 if (df[j]>rand){
-                    g.chromozoms[i] = this.chromozoms[j];
+                    g.parents[i] = this.parents[j];
+                    System.out.println("i: "+i+" "+ Arrays.toString(g.parents[i].ch));
                     break;
                 }
             }
@@ -63,20 +65,46 @@ public class Generation {
     public Generation Crossing(double probability){
         Generation g = this;
         Random rnd = new Random();
-        outerLoop:
-        for (int i=0;i<lengthGen;i++){
+        boolean end = false;
+        int j;
+        do{
+           int i=rnd.nextInt(lengthGen);
+           do {
+             j=rnd.nextInt(lengthGen);
+           } while (i==j);
+
+            double rand = rnd.nextDouble();
+            //       System.out.println("Prohazuji "+i+" s "+j+". Od pozice "+randomNum);
+            if (probability>rand){
+                int randomNum = rnd.nextInt(this.lengthChrom-2)+1;
+                for (int k=randomNum;k<lengthChrom;k++){
+                    int a = this.parents[j].ch[k];
+                    g.parents[j].ch[k] = this.parents[i].ch[k];
+                    g.parents[i].ch[k] = a;
+                }
+                end = true;
+            }
+        }while(end==false);
+
+
+     /*   for (int i=0;i<lengthGen;i++){
             for (int j=0;j<lengthGen;j++){
                 double rand = rnd.nextDouble();
+                if (i!=j)
                 if (probability>rand){
-                     int randomNum = rnd.nextInt(this.lengthChrom-2)+1;
+                    int randomNum = rnd.nextInt(this.lengthChrom-2)+1;
+             //       System.out.println("Prohazuji "+i+" s "+j+". Od pozice "+randomNum);
                     for (int k=randomNum;k<lengthChrom;k++){
-                        g.chromozoms[i].ch[k] = this.chromozoms[j].ch[k];
-                        g.chromozoms[j].ch[k] = this.chromozoms[i].ch[k];
+                        int a = this.parents[j].ch[k];
+                        g.parents[j].ch[k] = this.parents[i].ch[k];
+                        g.parents[i].ch[k] = a;
+
                     }
-                    break outerLoop;
+              //      System.out.println("i-tá i="+i+" "+Arrays.toString(g.parents[i].ch));
+              //      System.out.println("j-tá j="+j+" "+Arrays.toString(g.parents[j].ch));
                 }
             }
-        }
+        }*/
         return g;
     }
 
@@ -87,12 +115,12 @@ public class Generation {
         if (probalitity>randomP){
             int randomA = rnd.nextInt(this.lengthChrom);
             int randomCH = rnd.nextInt(this.lengthGen);
-            if (g.chromozoms[randomCH].ch[randomA]==0){
-                g.chromozoms[randomCH].ch[randomA]=1;
+            if (g.parents[randomCH].ch[randomA]==0){
+                g.parents[randomCH].ch[randomA]=1;
             }
             else
             {
-                g.chromozoms[randomCH].ch[randomA]=0;
+                g.parents[randomCH].ch[randomA]=0;
             }
         }
         return g;
