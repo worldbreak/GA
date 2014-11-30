@@ -8,6 +8,7 @@ public class Generation {
     Parent[] parents;
     int lengthGen;
     int lengthChrom;
+   // int elite = 4;
     public Generation(){}
 
     public Generation(int lengthGen, int lengthChrom, boolean InitialState ) {
@@ -49,12 +50,31 @@ public class Generation {
         Generation g = new Generation(lengthGen,lengthChrom, true);
         double[] df = GetFittnesFunctionForAllParents(true);
         Random rnd = new Random();
+        double[] f = new double[lengthGen];
+        for (int h=1;h<lengthGen;h++) {
+            f[h] = parents[h].fitnesFunction();
+        }
+     /*   double[] eliteParents = new double[elite];
+        double maxValue = maxValue(f);
+        int howMany=0;
+        for (int q=0;q<lengthGen;q++) {
+            if (maxValue==parents[q].fitnesFunction()) {
+                for (int k = 0; k < lengthChrom; k++) {
+                    g.parents[howMany].ch[k] = parents[q].ch[k];
+                }
+                howMany++;
+                if (howMany == elite) break;
+
+            }
+        }*/
+
         for (int i=0;i<lengthGen;i++){
             double rand = rnd.nextDouble();
             for (int j=0;j<lengthGen;j++){
                 if (df[j]>rand){
-                    g.parents[i] = this.parents[j];
-                    System.out.println("i: "+i+" "+ Arrays.toString(g.parents[i].ch));
+                    for (int k=0;k<lengthChrom;k++)
+                        g.parents[i].ch[k] = parents[j].ch[k];
+            //        System.out.println("i: "+i+" "+ Arrays.toString(g.parents[i].ch));
                     break;
                 }
             }
@@ -67,17 +87,15 @@ public class Generation {
         boolean end = false;
         int j;
         System.out.println("Krizeni pred:");
-        for (int n=0;n<lengthGen;n++){
-
-            //  System.out.print(g2.parents[j].fitnesFunction()+" ");
+        for (int n=0;n<lengthGen;n++)
             System.out.println(Arrays.toString(this.parents[n].ch));
-        }
+
         do{
            int i= rnd.nextInt(lengthGen);
            do {
              j=rnd.nextInt(lengthGen);
            } while (i==j);
-            System.out.println("i: "+i+" j:"+j);
+         //   System.out.println("i: "+i+" j:"+j);
             double rand = rnd.nextDouble();
             //       System.out.println("Prohazuji "+i+" s "+j+". Od pozice "+randomNum);
             if (probability>rand){
@@ -90,17 +108,13 @@ public class Generation {
                     int a = ch1[k];
                     ch1[k] = ch2[k];
                     ch2[k] = a;
-                    System.out.println(Arrays.toString(this.parents[3].ch));
-                  //  System.out.println("k="+k);
 
                 }
-                this.parents[i].ch=ch1;
-                this.parents[j].ch=ch2;
-                System.out.println("Krizeni po:");
-                for (int n=0;n<lengthGen;n++) {
-                    System.out.println(Arrays.toString(this.parents[n].ch));
-                }
-                System.out.println();
+          //      System.out.println("Krizeni po:");
+           //     for (int n=0;n<lengthGen;n++) {
+            //        System.out.println(Arrays.toString(this.parents[n].ch));
+             //   }
+             //   System.out.println();
                 end = true;
             }
         }while(end==false);
@@ -142,11 +156,22 @@ public class Generation {
                 g.parents[randomCH].ch[randomA]=0;
             }
         }
-        for (int j=0;j<lengthGen;j++){
+     //   for (int j=0;j<lengthGen;j++){
             //  System.out.print(g2.parents[j].fitnesFunction()+" ");
-            System.out.println(Arrays.toString(g.parents[j].ch));
-        }
+          //  System.out.println(Arrays.toString(g.parents[j].ch));
+      //  }
         return g;
     }
 
+    public static double maxValue(double[] arrayMax) {
+        double max=0;
+        for (int i=1;i<arrayMax.length;i++)
+        {
+            if (arrayMax[i] > max)
+            {
+                max = arrayMax[i];
+            }
+        }
+        return max;
+    }
 }
